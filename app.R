@@ -41,6 +41,11 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
                 h3("org.EcK12.eg.db"),
                 h3("tidyverse"),
                 h3("readr"),
+                br(),
+                br(),
+                h4(p("The code and all the attached files are included in a github repository:",
+                            a("goProfilesApp", 
+                              href = "https://github.com/xevialarconmasferrer/goProfilesApp"))),
 
         ),  
             sidebarPanel(
