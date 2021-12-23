@@ -46,7 +46,6 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
 
         ),  
             sidebarPanel(
-                  
                   h1(strong("First steps:")),
                   br(),
                   h2(strong("1.- Go to",span("Data", style = "color:blue"))),
@@ -55,42 +54,30 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
                   h3("Select among all the options we have to customize your analysis in your own way."),
                   h2(strong("3.- Jump to", span("Results", style = "color:blue"))),
                   h3("Visualize and download the results of your analysis."),
-                  
-                  
-               
-                
        )),
         
         tabPanel(h3(strong("Data", img(src="upload.png",  height = 25,width = 48,style="float:left; padding-right:25px"))),
-                
             sidebarPanel(
                 h2(strong(("Choose file to upload"))),
                 br(),
-                
                 h3("It must be a .csv file. Lists must be in separated files and uploaded all together in the browser."),
-                
                 fileInput("upload1", NULL,
                           multiple = TRUE,
                           buttonLabel = "Browse",
                           accept = c("text/csv",
                                      "text/comma-separated-values,text/plain",
                                      ".csv")),
-                
                 checkboxInput("header", h3(strong("Header")), TRUE),
-                
                 radioButtons("sep", h4(strong("Separator")),
                              choices = c(Comma = ",",
                                          Semicolon = ";",
                                          Tab = "\t"),
                              selected = ","),
-                
                 radioButtons("quote", h4(strong("Quote")),
                              choices = c(None = "",
                                          "Double Quote" = '"',
                                          "Single Quote" = "'"),
                            selected = '"'),
-                
-                
                 radioButtons("disp", h4(strong("Display")),
                              choices = c(Head = "head",
                                          All = "all"),
@@ -98,8 +85,6 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
           tableOutput("head"),
           tableOutput("head2")),
                 
-           
-        
         tabPanel(h3(strong("Presets",img(src="settings.png",  height = 25,width = 50,style="float:left; padding-right:25px"))),
                  
           sidebarPanel( 
@@ -113,10 +98,8 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
             h3("Select the species of your gene lists."),
             h3("If your lists belong to one species that is not in there, click 'Others'. Write the name of the bioconductor annotation package for that species. 
                         It will be installed and ready to use! "),
-            
             uiOutput("other"),
             br(),
-            
             checkboxGroupInput("checkGroup3", h2(strong("Select which ontologycal category")),
                                choices = c("Biological process" ="BP",
                                            "Molecular function" = "MF",
@@ -129,9 +112,6 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
             br(),
             actionButton("run", "Run Analysis", icon("paper-plane"), 
                          style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))),
-            
-      
-        
         tabPanel(h3(strong("Results",img(src="results.png",  height = 25,width = 50,style="float:left; padding-right:25px"))),
           sidebarPanel(
             h2(strong("Plot basic profiles by ontology")),
@@ -153,9 +133,7 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
             uiOutput("fish"),
             verbatimTextOutput("table2"),
             downloadButton("download4")))
-          
     )
-
 )
 
 server <- function(input, output) {
@@ -166,8 +144,14 @@ server <- function(input, output) {
                                              "Write the Bioconductor annotation package for the species...")}
   })
   
+  ##Other species other packages
+  output$other1 <- renderUI({
+    req(input$run)
+    if(length(input$checkGroup3) > 1 ){radioButtons("graphs", "",choices = c(BP= "BP",MF= "MF", CC = "CC"), selected = "BP",inline=T)}
+    else{return()}
+  })
+    
   #Install new packages
-  
   observeEvent(input$run, {
     if(!is.null(input$text2)){(BiocManager::install(input$text2))}})
   observeEvent(input$run, {
@@ -175,31 +159,8 @@ server <- function(input, output) {
       foo <- input$text2
       library(foo, character.only = TRUE)
     }})
-  
-  
-  ##Other species other packages
-  output$other1 <- renderUI({
-    req(input$run)
-    if(length(input$checkGroup3) > 1 ){radioButtons("graphs", "",choices = c(BP= "BP",MF= "MF", CC = "CC"), selected = "BP",inline=T)}
-    else{return()}
-  })
-  
-  #Fisher Graphs
-  output$fish <- renderUI({
-    req(input$run)
-    if(length(input$checkGroup3) > 1 ){radioButtons("fish1", "",choices = c(BP= "BP",MF= "MF", CC = "CC"), selected = "BP",inline=T)}
-  })
-
-  
-  ##Table with files
-  output$head <- renderTable({
-    if(is.null(input$upload1)){return()}
-    input$upload1
     
-  })
-
   ##File uploading
-  
   datass <- reactive({
     req(input$upload1)
     file_path = input$upload1$datapath
@@ -219,6 +180,14 @@ server <- function(input, output) {
     }
     return(lil)
   })
+    
+  #Descriptive table of the files uploaded
+  output$head <- renderTable({
+    if(is.null(input$upload1)){return()}
+    input$upload1
+  })
+    
+  #Data frame of the lists
   output$head2 <- renderTable({
     req(input$upload1)
     if(input$disp == "head") {
@@ -237,8 +206,7 @@ server <- function(input, output) {
       }
   })
    
-    
-    ##OUTPUT
+    #Creating and visualizing the functional profiles and merged
 
     output$plot1 <- renderPlot({
       req(input$run)
@@ -279,19 +247,22 @@ server <- function(input, output) {
         else{print(plotProfiles(merges, aTitle = "Merged of basic profiles"))
         }
     })
-    
 
-    
-    #Test output
-
+    #Calculation and visualizacion of the results form Euclidean distances Test
     output$table1 <- renderPrint({
       req(input$run)
         compareGeneLists(datass()$r1, datass()$r2,idType = input$select2, 
                          onto = input$checkGroup3, level = input$slider, orgPackage = input$select22 )
     })
 
-    ##Fisher
+     #Fisher Graphs
+  output$fish <- renderUI({
+    req(input$run)
+    if(length(input$checkGroup3) > 1 ){radioButtons("fish1", "",choices = c(BP= "BP",MF= "MF", CC = "CC"), selected = "BP",inline=T)}
+  })
+
     
+    #Calculation and visualization results from Fisher Test
     output$table2 <- renderPrint({
       req(input$run)
         if( input$header2 == TRUE){
@@ -355,7 +326,7 @@ server <- function(input, output) {
         }
     })
     
-    ##download
+    #Download results
     output$download1 <- downloadHandler(
           filename = "Merge.pdf",
           content = function(file) {
