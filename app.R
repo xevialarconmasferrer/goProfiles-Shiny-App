@@ -11,8 +11,6 @@ library(goProfiles)
 library(tidyverse)
 library(BiocManager)
 
-
-# Define UI for application that draws a histogram
 ui <- fluidPage(theme=("bootstrap.min3.css"),
     br(),
     titlePanel(h2(strong("GoProfiles app"))),
