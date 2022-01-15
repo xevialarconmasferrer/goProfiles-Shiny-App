@@ -173,13 +173,11 @@ server <- function(input, output) {
     for(i in 1: length(file_path))
     {
       file_contentsss[[i]] =  read.csv(file = file_path[[i]], quote = input$quote, header= input$header, sep = input$sep)
+      names(file_contentsss)[i] = input$upload1$name[[i]]
     }
     for(j  in seq_along(file_contentsss)){
       lil[[j]] <- as.numeric(file_contentsss[[j]][[l]])
-    }
-    for(l in seq_along(lil)){
-      nams= paste0("r", 1:l)
-      names(lil) = nams
+      names(lil)[j] = names(file_contentsss)[j]
     }
     return(lil)
   })
@@ -254,9 +252,12 @@ server <- function(input, output) {
     #Calculation and visualizacion of the results form Euclidean distances Test
     output$table1 <- renderPrint({
     if(length(input$upload1) < 3){
+      list3 = list()
       req(input$run)
-      compSummary(compareGeneLists(datass()$r1, datass()$r2,idType = input$select2, 
+      list3 = compSummary(compareGeneLists(datass()[[1]], datass()[[2]],idType = input$select2, 
                      onto = input$checkGroup3, level = input$slider, orgPackage = input$select22))
+      names(list3) = paste0(names(datass())[1],"_",names(datass())[2])
+      print(list3)
     }
     if(length(input$upload1) > 2){
       list3 = list()
@@ -266,9 +267,10 @@ server <- function(input, output) {
           c = c+1
           list3[[c]] = compSummary(compareGeneLists(datass()[[i]], datass()[[j]],idType = input$select2, 
                         onto = input$checkGroup3, level = input$slider, orgPackage = input$select22))
-          names(list3[c])= paste0(names(datass()[i]),"_",names(datass()[j]))
+          names(list3)[c]= paste0(names(datass()[i]),"_",names(datass()[j]))
         }
       }
+        print(list3)
     }
     
   })
