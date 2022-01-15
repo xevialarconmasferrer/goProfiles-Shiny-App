@@ -255,7 +255,7 @@ server <- function(input, output) {
     output$table1 <- renderPrint({
     if(length(input$upload1) < 3){
       req(input$run)
-      comSummary(compareGeneLists(datass()$r1, datass()$r2,idType = input$select2, 
+      compSummary(compareGeneLists(datass()$r1, datass()$r2,idType = input$select2, 
                      onto = input$checkGroup3, level = input$slider, orgPackage = input$select22))
     }
     if(length(input$upload1) > 2){
@@ -264,7 +264,7 @@ server <- function(input, output) {
       for( i in 1:(length(datass())-1)){
         for(j in (i+1):length(datass())){
           c = c+1
-          list3[[c]] = comSummary(compareGeneLists(datass()[[i]], datass()[[j]],idType = input$select2, 
+          list3[[c]] = compSummary(compareGeneLists(datass()[[i]], datass()[[j]],idType = input$select2, 
                         onto = input$checkGroup3, level = input$slider, orgPackage = input$select22))
           names(list3[c])= paste0(names(datass()[i]),"_",names(datass()[j]))
         }
