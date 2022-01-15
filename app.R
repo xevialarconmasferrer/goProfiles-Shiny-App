@@ -253,9 +253,26 @@ server <- function(input, output) {
 
     #Calculation and visualizacion of the results form Euclidean distances Test
     output$table1 <- renderPrint({
+    if(length(input$upload1) < 3){
       req(input$run)
-        compareGeneLists(datass()$r1, datass()$r2,idType = input$select2, 
-                         onto = input$checkGroup3, level = input$slider, orgPackage = input$select22 )
+      comSummary(compareGeneLists(datass()$r1, datass()$r2,idType = input$select2, 
+                     onto = input$checkGroup3, level = input$slider, orgPackage = input$select22))
+    }
+    if(length(input$upload1) > 2){
+      list3 = list()
+      c = 0
+      for( i in 1:(length(datass())-1)){
+        for(j in (i+1):length(datass())){
+          c = c+1
+          list3[[c]] = comSummary(compareGeneLists(datass()[[i]], datass()[[j]],idType = input$select2, 
+                        onto = input$checkGroup3, level = input$slider, orgPackage = input$select22))
+          names(list3[c])= paste0(names(datass()[i]),"_",names(datass()[j]))
+        }
+      }
+    }
+    
+  })
+  
     })
 
      #Fisher Graphs
