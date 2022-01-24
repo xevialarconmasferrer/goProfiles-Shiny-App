@@ -143,11 +143,12 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
                          sidebarPanel(width=6,
                            h2(strong("Global test: Euclidean distance")),
                            verbatimTextOutput("table1"),
+                           downloadButton("download5"),
                            checkboxInput("header2", h5(strong("Fisher Test")), FALSE),
                            h2(strong("Class-by-class test: Fisher Test")),
                            uiOutput("fishs"),
                            verbatimTextOutput("table2"),
-                           downloadButton("download5")),
+                           downloadButton("download6")),
                          sidebarPanel(width = 6,
                             uiOutput("dendo")
               
@@ -171,13 +172,13 @@ server <- function(input, output) {
   
   ##Other species other packages
   output$other1 <- renderUI({
-    if(length(input$checkGroup3) > 1 ){radioButtons("graphs", "",choices = c(BP= "BP",MF= "MF", CC = "CC"), selected = "BP",inline=T)}
+    if(length(input$checkGroup3) > 1 ){radioButtons("graphs", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}
     else{return()}
   })
   
   ##Other species other packages
   output$fishs <- renderUI({
-    if(length(input$checkGroup3) > 1 ){radioButtons("fish", "",choices = c(BP= "BP",MF= "MF", CC = "CC"), selected = "BP",inline=T)}
+    if(length(input$checkGroup3) > 1 ){radioButtons("fish", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}
     else{return()}
   })
   
@@ -234,24 +235,7 @@ server <- function(input, output) {
     }
   })
   
-  #Dendograma
   
-  output$dendo <- renderUI({
-    req(input$run)
-    if(length(input$upload) > 2){plotOutput("dendo2")}
-    output$dendo2 <- renderPlot({
-      if(input$fish == "MF"){
-        plot(equivClust(input$slider, "MF", datass(), orgPackage=input$select22),main = "Dendrogram (method = complete)", ylab = "Equivalence threshold distance")
-      }
-      if(input$fish == "BP"){
-        plot(equivClust(input$slider, "BP", datass(), orgPackage=input$select22),main = "Dendrogram (method = complete)", ylab = "Equivalence threshold distance")
-      }
-      if(input$fish == "CC"){
-        plot(equivClust(input$slider, "CC", datass(), orgPackage=input$select22),main = "Dendrogram (method = complete)", ylab = "Equivalence threshold distance")
-      }
-    })
-  }) 
- 
   ##Basic Profiles
   dt <- reactive({
     req(input$run)
@@ -322,15 +306,8 @@ observe({
       local({ 
         ii <- i
         output[[paste0('plot_',ii)]] <- renderPlot({
-          if(input$graphs == "BP"){
-            print(plotProfiles(dt()[[ii]][["BP"]], aTitle = paste0("Functional Profile:",names(dt())[ii],"_BP"), multiplePlots =TRUE, labelWidth = 100))
-          }
-          if(input$graphs == "MF"){
-            print(plotProfiles(dt()[[ii]][["MF"]], aTitle = paste0("Functional Profile:",names(dt())[ii],"_MF"), multiplePlots =TRUE, labelWidth = 100)) 
-          }
-          if(input$graphs == "CC"){
-            print(plotProfiles(dt()[[ii]][["CC"]], aTitle = paste0("Functional Profile:",names(dt())[ii],"_CC"), multiplePlots =TRUE, labelWidth = 100)) 
-          }
+            print(plotProfiles(dt()[[ii]][[input$graphs]], aTitle = paste0("Functional Profile:",names(dt())[ii],"_",input$graphs), multiplePlots =TRUE, labelWidth = 100))
+
         })
       })
     }                                  
@@ -351,19 +328,9 @@ output$download1 <- downloadHandler(
 output$text <- renderPrint({
  for( i in 1:length(dt())){
    local({
-    if(input$graphs == "BP"){
-      print(paste0(names(dt())[i],"_BP"))
-      print(dt()[[i]][["BP"]])
-    }
-    if(input$graphs == "MF"){
-      print(paste0(names(dt())[i],"_MF"))
-      print(dt()[[i]][["MF"]]) 
-    }
-    if(input$graphs == "CC"){
-      print(paste0(names(dt())[i],"_cc"))
-      print(dt()[[i]][["CC"]]) 
-    }
-  })
+      print(paste0(names(dt())[i],"_",input$graphs))
+      print(dt()[[i]][[input$graphs]])
+    })
  }
 })
 
@@ -388,22 +355,15 @@ observe({
           ii <- i
           jj <- j
           output[[paste0('plot2_',ii,"_",jj)]] <- renderPlot({
-            if(input$graphs == "BP"){
-              print(plotProfiles(m()[[paste0(names(dt())[ii],"_",names(dt())[jj])]][["BP"]], aTitle = paste0("Merged:","",names(dt())[ii],"_",names(dt())[jj],"_BP"), multiplePlots =TRUE, labelWidth = 100))
-            }
-            if(input$graphs == "MF"){
-              print(plotProfiles(m()[[paste0(names(dt())[ii],"_",names(dt())[jj])]][["MF"]], aTitle = paste0("Merged:","",names(dt())[ii],"_",names(dt())[jj],"_MF"), multiplePlots =TRUE, labelWidth = 100))
-            }
-            if(input$graphs == "CC"){
-              print(plotProfiles(m()[[paste0(names(dt())[ii],"_",names(dt())[jj])]][["CC"]], aTitle = paste0("Merged:","",names(dt())[ii],"_",names(dt())[jj],"_CC"), multiplePlots =TRUE, labelWidth = 100))
-            }
+              print(plotProfiles(m()[[paste0(names(dt())[ii],"_",names(dt())[jj])]][[input$graphs]], aTitle = paste0("Merged:","",names(dt())[ii],"_",names(dt())[jj],"_",input$graphs), multiplePlots =TRUE, labelWidth = 100))
           })
         })
-      }                                  
+      }
     })
   }
 })
 
+#Download merge plots
 output$download2 <- downloadHandler(
   filename = "merge.pdf",
   content = function(file) {
@@ -419,18 +379,8 @@ output$download2 <- downloadHandler(
 output$text2 <- renderPrint({
   for( i in 1:length(m())){
     local({
-    if(input$graphs == "BP"){
-      print(paste0(names(m())[i],"_BP"))
-      print(m()[[i]][["BP"]])
-    }
-    if(input$graphs == "MF"){
-      print(paste0(names(m())[i],"_MF"))
-      print(m()[[i]][["MF"]]) 
-    }
-    if(input$graphs == "CC"){
-      print(paste0(names(m())[i],"_CC"))
-      print(m()[[i]][["CC"]]) 
-      }
+      print(paste0(names(m())[i],"_",input$graphs))
+      print(m()[[i]][[input$graphs]])
     })
   }
 })
@@ -439,6 +389,7 @@ output$text2 <- renderPrint({
 #Euclidean distance test
 
 output$table1 <- renderPrint({
+  req(input$run)
   list35 = list()
   list33 = list()
   list34 = list()
@@ -454,7 +405,19 @@ output$table1 <- renderPrint({
   }
   
   print(list35)
+  
+  #Download Euclidean distance test
+  output$download5 <- downloadHandler(
+    filename = function() {"Euclidean.txt"},
+    content = function(file) {
+      xlsx::write.xlsx
+      sink(file); print(list35); sink();
+    }
+  )
 })
+
+
+
 
 #Test Fisher
 
@@ -468,31 +431,24 @@ output$table2 <- renderPrint({
     for(l in (j+1):length(lisss)){
       c = c+1
       if(length(intersect(lisss[[j]], lisss[[l]])) > 0){
-        
-        if(input$fish == "BP"){
-          list34[[c]] = fisherGOProfiles(dt()[[j]][["BP"]], dt()[[l]][["BP"]], 
-                                         basicProfile(intersect(lisss[[j]], lisss[[l]]), idType = input$select2, level = input$slider, onto= "BP", orgPackage = input$select22)[["BP"]], method="holm")
-          names(list34)[c]= paste0(names(lisss[j]),"_",names(lisss[l]),"_BP")
+          list34[[c]] = fisherGOProfiles(dt()[[j]][[input$fish]], dt()[[l]][[input$fish]], 
+                                         basicProfile(intersect(lisss[[j]], lisss[[l]]), idType = input$select2, level = input$slider, onto= input$fish, orgPackage = input$select22)[[input$fish]], method="holm")
+          names(list34)[c]= paste0(names(lisss[j]),"_",names(lisss[l]),"_",input$fish)
+          }
         }
-        if(input$fish == "MF"){
-          list34[[c]] = fisherGOProfiles(dt()[[j]][["MF"]], dt()[[l]][["MF"]], 
-                                         basicProfile(intersect(lisss[[j]], lisss[[l]]), idType = input$select2, level = input$slider, onto= "MF", orgPackage = input$select22)[["MF"]], method="holm")
-          names(list34)[c]= paste0(names(lisss[j]),"_",names(lisss[l]),"_MF")
-          
-        }
-        if(input$fish == "CC"){
-          list34[[c]] = fisherGOProfiles(dt()[[j]][["CC"]], dt()[[l]][["CC"]], 
-                                         basicProfile(intersect(lisss[[j]], lisss[[l]]), idType = input$select2, level = input$slider, onto= "CC", orgPackage = input$select22)[["CC"]], method="holm")
-          names(list34)[c]= paste0(names(lisss[j]),"_",names(lisss[l]),"_CC")
-          
-        }
-        
       }
-    }
-  }
   print(list34)
+  
+  #Download Fisher test
+  output$download6 <- downloadHandler(
+    filename = function() {"Fisher.txt"},
+    content = function(file) {
+      xlsx::write.xlsx
+      sink(file); print(list34); sink();
+    }
+  )
+    })
 }
-)}
 
 
 # Run the application 
