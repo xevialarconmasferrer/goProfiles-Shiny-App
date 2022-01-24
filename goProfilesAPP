@@ -117,6 +117,8 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
                                          min= 1, max=10, value=1),
                              h3("Select which level of ontology would you like to reach."),
                              br(),
+                             sliderInput("slider2",h2(strong("Select a treshold for the analysis:")),
+                                         min= 0.01, max=0.10, value=0.05),
                              actionButton("run", "Run Analysis", icon("paper-plane"), 
                                           style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))),
                   tabPanel(h3(strong("Graphs",img(src="graph.png",  height = 25,width = 50,style="float:left; padding-right:25px"))),
@@ -172,15 +174,10 @@ server <- function(input, output) {
   
   ##Other species other packages
   output$other1 <- renderUI({
-    if(length(input$checkGroup3) > 1 ){radioButtons("graphs", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}
-    else{return()}
-  })
+    {radioButtons("graphs", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}})
   
   ##Other species other packages
-  output$fishs <- renderUI({
-    if(length(input$checkGroup3) > 1 ){radioButtons("fish", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}
-    else{return()}
-  })
+  output$fishs <- renderUI({{radioButtons("fish", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}})
   
   #Install new packages
   observeEvent(input$run, {
@@ -301,7 +298,6 @@ server <- function(input, output) {
     return(out)
   })
 observe({ 
-  req(input$run)
     for (i in 1:length(dt())){  
       local({ 
         ii <- i
@@ -326,7 +322,7 @@ output$download1 <- downloadHandler(
 
 ## Tables visualization functional profiles
 output$text <- renderPrint({
- for( i in 1:length(dt())){
+  for( i in 1:length(dt())){
    local({
       print(paste0(names(dt())[i],"_",input$graphs))
       print(dt()[[i]][[input$graphs]])
@@ -347,7 +343,7 @@ output$plots2 <- renderUI({
   }
   return(out2)
 })
-observe({  
+observe({
   for( i in 1:(length(dt())-1)){
     local({
       for(j in (i+1):length(dt())){
@@ -414,10 +410,8 @@ output$table1 <- renderPrint({
       sink(file); print(list35); sink();
     }
   )
+  
 })
-
-
-
 
 #Test Fisher
 
@@ -434,10 +428,10 @@ output$table2 <- renderPrint({
           list34[[c]] = fisherGOProfiles(dt()[[j]][[input$fish]], dt()[[l]][[input$fish]], 
                                          basicProfile(intersect(lisss[[j]], lisss[[l]]), idType = input$select2, level = input$slider, onto= input$fish, orgPackage = input$select22)[[input$fish]], method="holm")
           names(list34)[c]= paste0(names(lisss[j]),"_",names(lisss[l]),"_",input$fish)
-          }
-        }
       }
-  print(list34)
+    }
+  }
+  print(list34[[input$fish]])
   
   #Download Fisher test
   output$download6 <- downloadHandler(
@@ -447,7 +441,10 @@ output$table2 <- renderPrint({
       sink(file); print(list34); sink();
     }
   )
-    })
+})
+
+
+
 }
 
 
