@@ -431,7 +431,7 @@ output$table2 <- renderPrint({
       }
     }
   }
-  print(list34[[input$fish]])
+  print(list34)
   
   #Download Fisher test
   output$download6 <- downloadHandler(
