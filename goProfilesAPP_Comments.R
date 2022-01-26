@@ -371,12 +371,16 @@ server <- function(input, output) {
       })
 
 # Download basic profiles plots:
-#
+
+# We define that the output from the widget downloadButton named "download1".
 output$download1 <- downloadHandler(
+  # We define that the object downloaded will be written in a .pdf file named "Bprofiles.pdf".
   filename = "Bprofiles.pdf",
   content = function(file) {
     pdf(file)
+    # For i when i goes from 1 to all the elements in dt(), the basic profiles
     for(i in 1:length(dt())){
+        # Print the resulting plots of applying plotProfiles to each element i of dt()
         plotProfiles(dt()[[i]],aTitle = paste0("Functional Profile:","",names(dt())[i]))
     }
     dev.off()
@@ -492,12 +496,17 @@ observe({
   }
 })
 
-#Download merge plots
+#Download merge plots:
+  
+# We define that the output from the widget downloadButton named "download2".
 output$download2 <- downloadHandler(
+  # We define that the object downloaded will be written in a .pdf file named "merge.pdf".
   filename = "merge.pdf",
   content = function(file) {
     pdf(file)
+    # For i when i goes from 1 to all the elements in m(), the merged profiles
     for(i in 1:length(m())){
+      # Print the resulting plots of applying plotProfiles to each element i of m()
       plotProfiles(m()[[i]],aTitle = paste0("Merge:","",names(m())[i]))
     }
     dev.off()
