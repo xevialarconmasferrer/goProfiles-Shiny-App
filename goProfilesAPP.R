@@ -355,18 +355,20 @@ server <- function(input, output) {
     }
     return(out)
   })
-  
-observe({ 
-    for (i in 1:length(dt())){  
-      local({ 
-        ii <- i
-        output[[paste0('plot_',ii)]] <- renderPlot({
-            print(plotProfiles(dt()[[ii]][[input$graphs]], aTitle = paste0("Functional Profile:",names(dt())[ii],"_",input$graphs), multiplePlots =TRUE, labelWidth = 100))
-
-        })
+    # We open an observe() object
+    observe({ 
+        # for i, as i being from 1 to length of dt()
+        for (i in 1:length(dt())){  
+          local({ 
+            ii <- i
+            # We define that in one of the ouputplots defined previously,  we will plot the basic profile of dt() in the position i by defining the output id as plot_i. 
+            output[[paste0('plot_',ii)]] <- renderPlot({
+              # Finally, we apply the function plotProfiles to the basic profile i in dt() of the ontological category selected with input$graphs
+                print(plotProfiles(dt()[[ii]][[input$graphs]], aTitle = paste0("Functional Profile:",names(dt())[ii],"_",input$graphs), multiplePlots =TRUE, labelWidth = 100))
+            })
+          })
+        }                                  
       })
-    }                                  
-  })
 
 # Download basic profiles plots:
 #
@@ -422,8 +424,8 @@ output$text2 <- renderPrint({
   # for i, as a posicion from 1 to the length of m(), from start to end
   for( i in 1:length(m())){
     local({
-       # Print a title for each table as the name of the list i in m() pasted to input$graphs. Input$graphs is a radio$button widget created before containing all the ontological
-       # categories selected so the user can choose of which category see the resulting tables.
+      # Print a title for each table as the name of the list i in m() pasted to input$graphs. Input$graphs is a radio$button widget created before containing all the ontological
+      # categories selected so the user can choose of which category see the resulting tables.
       print(paste0(names(m())[i],"_",input$graphs))
       # Print the the object of m() in the position i of m(), and the object included in the element of name "input$graphs" of i, the ontological category selected.
       print(m()[[i]][[input$graphs]])
@@ -467,14 +469,21 @@ output$plots2 <- renderUI({
   }
   return(out2)
 })
+  
+# We open an observe() object
 observe({
+  # For i iterating through all the elements in lisss from first to penultimate.
   for( i in 1:(length(dt())-1)){
     local({
+      # For j iterating from the element in the position i + 1 to last.
       for(j in (i+1):length(dt())){
         local({
           ii <- i
           jj <- j
+          # We define that in one of the ouputplots defined previously,  we will plot the merged profiles of the elements i and j of m(). 
+          # The "name" or ouptuID of each plotOutput is plot2 plus the name of the element i in lisss plus the name of the element j in lisss
           output[[paste0('plot2_',ii,"_",jj)]] <- renderPlot({
+              # Finally we print the result of applying plotProfiles to each merged profile in m() for the ontological category selected.
               print(plotProfiles(m()[[paste0(names(dt())[ii],"_",names(dt())[jj])]][[input$graphs]], aTitle = paste0("Merged:","",names(dt())[ii],"_",names(dt())[jj],"_",input$graphs), multiplePlots =TRUE, labelWidth = 100))
           })
         })
