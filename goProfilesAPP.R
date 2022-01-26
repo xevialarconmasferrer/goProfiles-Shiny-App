@@ -1,5 +1,17 @@
-##IMPORTANT! Not Finished!
+#  goProfiles App
 
+# "goProfiles" is a R package, created by: Alex Sánchez, Jordi Ocana and Miquel Salicru (2011). Ths package  creates functional profiles from lists of genes and does a comparative 
+#  analysis to evaluate how equivalent those profiles are. The main reason this application was created is to allow scientist to compare lists of genes obtained from similar 
+#  experiments. Lets say for example that to laboratories make the same experiment. We could think that the expected results should be the same, but some times do to differences on
+#  the methodology, the technoloy used or the "human" manipulation it is posible that does results may differ. Sometimes it is interesting to combine results in order to have more
+#  data so the study become more robust. We need a tool that allows as to evaluate how equal are this results to be combined. goProfiles does precisly that.
+#  The methodology  behind this functionality consists on a global test of Euclidean distance in order to evaluate globally the proximity of those lists, and in case that we see 
+#  differences, a Fisher test class-by-class to see in which related  ontological categories we see those diferences.
+
+#  This Application includes all the funcionality of this package in order to make this tool avaliable to everyone who need to perform this comparative analysis and does not have 
+#  notions of programming.
+
+# Here you have the list of all the R packages required to run this application.
 library(readr)
 library(shiny)
 library(dplyr)
@@ -12,6 +24,10 @@ library(goProfiles)
 library(tidyverse)
 library(BiocManager)
 
+
+#   The first component of a shiny app is the "User Interface". Here in, there is all the code related to how the application is visualized by the user. Furthermore, is where the
+#   user will be able to upload the lists and select from different options those that he/she prefers for the analysis.  Those options selected will be inputs that will be send to
+#   to the server, where the calculations are done.
 ui <- fluidPage(theme=("bootstrap.min3.css"),
                 br(),
                 titlePanel(h2(strong("GoProfiles app"))),
@@ -161,11 +177,11 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
                 )
 )
 
+#  The second component of a shiny App is the server. Here in are included the itinerary of fucntions and calculations that the application to obtain the results, taking the inputs 
+# as arguments.
 server <- function(input, output) {
   
-  
-  
-  
+ 
   ##Other species other packages
   output$other <- renderUI({
     if(input$select22 =="other"){textInput("text2", strong("Other species"), value = 
