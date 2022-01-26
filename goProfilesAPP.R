@@ -8,7 +8,7 @@
 #  The methodology  behind this functionality consists on a global test of Euclidean distance in order to evaluate globally the proximity of those lists, and in case that we see 
 #  differences, a Fisher test class-by-class to see in which related  ontological categories we see those diferences.
 
-#  This Application includes all the funcionality of this package in order to make this tool avaliable to everyone who need to perform this comparative analysis and does not have 
+#  This Application includes all the funcionalities of this package in order to make this tool avaliable to everyone who need to perform this comparative analysis and does not have 
 #  notions of programming.
 
 # Here you have the list of all the R packages required to run this application.
@@ -25,9 +25,9 @@ library(tidyverse)
 library(BiocManager)
 
 
-#   The first component of a shiny app is the "User Interface". Here in, there is all the code related to how the application is visualized by the user. Furthermore, is where the
-#   user will be able to upload the lists and select from different options those that he/she prefers for the analysis.  Those options selected will be inputs that will be send to
-#   to the server, where the calculations are done.
+#  The first component of a shiny app is the "User Interface". Here in, there is all the code related to how the application is visualized. Furthermore, is where we define the 
+#  "widgets", so the user is able to upload the lists, and select from different options those that he/she prefers for the analysis.  Those options selected will be inputs that 
+#  will be sended to the server, where the calculations are done.
 ui <- fluidPage(theme=("bootstrap.min3.css"),
                 br(),
                 titlePanel(h2(strong("GoProfiles app"))),
@@ -177,7 +177,7 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
                 )
 )
 
-#  The second component of a shiny App is the server. Here in are included the itinerary of fucntions and calculations that the application to obtain the results, taking the inputs 
+# The second component of a shiny App is the server. Here in are included the itinerary of fucntions and calculations that the application to obtain the results, taking the inputs 
 # as arguments.
 server <- function(input, output) {
   
@@ -243,36 +243,50 @@ server <- function(input, output) {
     }
     return(lil)
   })
-  # The final product is the reactive object datasss() that is a list of the lists of genes uploaded.
+  # The final product is the reactive object datasss() that is a list of the lists uploaded with the gene codes.
   
   
-  #Descriptive table of the files uploaded
+  # Descriptive table of the files uploaded:
+  # We define the output for the widget tableoutput "head" as a table containing input$ulpload1, a table that contains all the files uploaded, the size and the datapath for each one
+  # if is not null, there are files to show.
   output$head <- renderTable({
     if(is.null(input$upload1)){return()}
     input$upload1
   })
   
-  #Data frame of the lists
+  # Data frame of the lists:
+  
+  # We define the output for the widget tableOutput "head2" as a data frame containing many columns as files uploaded and many rows as elements on the lists.
   output$head2 <- renderTable({
+    # Requires that exist uploaded files.
     req(input$upload1)
+    
+    # If input$disp is equal to "head" which means that the user selected to only see the head of the lists:
     if(input$disp == "head") {
+      # We define a function "fun1" to extract all the elements of a list using sappply()
       fun1 <- function(lst, n){
         sapply(lst, `[`, n)
       }
+      # We apply the function to datass() so we extract the 10 first elements of each list in datass() and we print the resulting table.
       f1 <- fun1(datass(), 1:10)
       print(f1)
     }
+     # If input$disp is equal to anything else which means that the user selected to the entire lists:
     else {
+      # We define a function "fun1" to extract all the elements of a list using sappply()
       fun1 <- function(lst, n){
         sapply(lst, `[`, n)
       }
-      f2 <- fun1(datass(), 1:1000)
-      print(f2)
+      # We apply the function to datass() so we extract all the elements of each list in datass() and we print the resulting table.
+      f1 <- fun1(datass(), 1:1000)
+      print(f1)
     }
   })
   
   
-  ##Basic Profiles
+  ## Calcultaion of Basic Profiles:
+  
+  #
   dt <- reactive({
     req(input$run)
     c=0
@@ -289,7 +303,7 @@ server <- function(input, output) {
     
   })
   
-  #Download functional profiles tables
+  ## Download basic profiles tables
   output$download3 <- downloadHandler(
     filename = function() {"Bprofiles.txt"},
     content = function(file) {
@@ -299,7 +313,8 @@ server <- function(input, output) {
   )
  
   
-  #Merged
+  ## Calculation of Merged basic profiles:
+  ## 
   m <- reactive({
     req(input$run)
     c=0
