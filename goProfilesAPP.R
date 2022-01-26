@@ -340,15 +340,22 @@ server <- function(input, output) {
 
   # Plot visualization of functional profiles :
   
+  # We define the output of the UIoutput/renderUI widget named "plots". We need to define as many plotOutputs in the ui as many basic profiles we calculated previously.
   output$plots <- renderUI({
+    # To proceed with the code we require clicking "run"
     req(input$run)
+    # We define an empty list "out"
     out <- list()
+    # We define list call lisss as datass(), in order to null the reactive properties of datasss().
     lisss <- datass()
+    # For i as i is a number from 1 to lisss length.
     for(i in 1:length(lisss)){
+      # The element "i" in the list out is equal to a plotOuput. The "name" or ouptuID of plotOutput[[i]] is plot plus the name of the element i in lisss. 
       out[[i]] <-  plotOutput(outputId = paste0("plot_",i))
     }
     return(out)
   })
+  
 observe({ 
     for (i in 1:length(dt())){  
       local({ 
@@ -436,13 +443,25 @@ output$text2 <- renderPrint({
     }
   )
   
-# Visualizing merged Plots
+# Visualizing merged Plots:
+  
+# We define the output of the UIoutput/renderUI widget named "plots2". We need to define as many plotOutputs in the ui as many merged profiles we calculated previously.
 output$plots2 <- renderUI({
+  # We define list call lisss as datass(), in order to null the reactive properties of datasss().
+  lisss <- datass()
+  # We define an empty list "out2"
   out2 <- list()
+  # A new variable "c" equal to 0
   c=0
+  # In order to do this, we need to define one plotoutput  to all unic posible combinations of two of the different basic profiles.
+  # For i iterating through all the elements in lisss from first to penultimate.
   for( i in 1:(length(lisss)-1)){
+    # For j iterating from the element in the position i + 1 to last.
     for(j in (i+1):length(lisss)){
+      # In each iteration we sum 1 to "c"
       c=c+1
+      # The element "c" in the list out2 is equal to a plotOuput. The "name" or ouptuID of plotOutput[[i]] is plot2 plus the name of the element i in lisss plus the name of the 
+      # element j in lisss
       out2[[c]] <-  plotOutput(outputId = paste0("plot2_",i,"_",j))
     }
   }
