@@ -211,9 +211,9 @@ server <- function(input, output) {
     }})
   
   
-  ##File uploading:
+  ##  1.- File uploading:
   
-  ## Datass is a reactive object
+  ## datass is a reactive object
   datass <- reactive({
     # In order to proceed with this code it is required input$upload1, files uploades to the inteface.
     req(input$upload1)
@@ -229,17 +229,22 @@ server <- function(input, output) {
     {
       # The element i of the list "file contentsss" is the element i of file_path, the file readed with read.csv(). input$quote is the option the user can select regarding quoted
       # data, input$sep is the option selected regarding the separators, and input$header is the option regarding if the list has or not headers.
-      # The name of the element i in file_contentss is the name of the file i.
+      # The name of the element i in "file_contentss" is the name of the file i.
       file_contentsss[[i]] =  read.csv(file = file_path[[i]], quote = input$quote, header= input$header, sep = input$sep)
       names(file_contentsss)[i] = input$upload1$name[[i]]
     }
-    
+    # The product of this loop is a list of data.frames, as tables with a header. We need to convert those data frames in list objects. 
+    # for each element through all the elements from the first to the last included in "file_contentsss"(the lists):
     for(j  in seq_along(file_contentsss)){
+      # The element j of the list "lil" is the element on the position [[l]] (l=1) from  j of "file_contentss". 
+      # The name of the element [[l]] of j in "lil" is the name of the element j in "file_contentsss"
       lil[[j]] <- as.character(file_contentsss[[j]][[l]])
       names(lil)[j] = names(file_contentsss)[j]
     }
     return(lil)
   })
+  # The final product is the reactive object datasss() that is a list of the lists of genes uploaded.
+  
   
   #Descriptive table of the files uploaded
   output$head <- renderTable({
