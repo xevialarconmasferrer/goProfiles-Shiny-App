@@ -271,7 +271,7 @@ server <- function(input, output) {
       f1 <- fun1(datass(), 1:10)
       print(f1)
     }
-     # If input$disp is equal to anything else which means that the user selected to the entire lists:
+     # If input$disp is equal to anything else which means that the user selected to see the entire lists:
     else {
       # We define a function "fun1" to extract all the elements of a list using sappply()
       fun1 <- function(lst, n){
@@ -286,24 +286,32 @@ server <- function(input, output) {
   
   ## Calcultaion of Basic Profiles:
   
-  #
+  # We define a reactive variable dt()
   dt <- reactive({
+    # Runing the application is required to proceed with this code.
     req(input$run)
+    # We define a variable "c" with a value of 0. 
     c=0
+    # We define list call lisss as datass(), in order to null the reactive properties of datasss().
     lisss <- datass()
+    # We define list1 as an empty list.
     list1 <- list()
+    # For all the elements included in "lisss" from first to last:
     for(i in 1:length(lisss)){
+      # Each itineration sum 1 to the variable "c"
       c=c+1
+      # The element "c" in "list1" is the resulting functional profile list of applying the function basicProfile to the list i. This function takes as arguments the inputs selected
+      # by the user on the ui. The name of the element i in "list1" is equal to the name of the element i in the list "lisss"
       list1[[c]]= basicProfile(lisss[[i]], orgPackage =input$select22,onto = input$checkGroup3, level=input$slider)
-      names(list1)[i]= names(lisss)[i]
-      
+      names(list1)[i]= names(lisss)[i]      
     }
-    return(list1)
-   
-    
+    return(list1)   
   })
+  # The object obtained is dt(). A list of lists containing the basic profiles of one list and for each ontological category selected.
   
   ## Download basic profiles tables
+  
+  # We define that te ouptput of clicking the widget downloadButton named "download3" is a downloadHandler that writes the results from dt() into a .txt file called "Bprofiles.txt".
   output$download3 <- downloadHandler(
     filename = function() {"Bprofiles.txt"},
     content = function(file) {
@@ -314,7 +322,7 @@ server <- function(input, output) {
  
   
   ## Calculation of Merged basic profiles:
-  ## 
+  #  
   m <- reactive({
     req(input$run)
     c=0
