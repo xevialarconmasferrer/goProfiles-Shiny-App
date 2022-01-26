@@ -181,30 +181,38 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
 # as arguments.
 server <- function(input, output) {
   
- 
-  ##Other species other packages
-  output$other <- renderUI({
-    if(input$select22 =="other"){textInput("text2", strong("Other species"), value = 
-                                             "Write the Bioconductor annotation package for the species...")}
-  })
+  ## From a UIoutput/RenderUI widget, we define a widget type radiobutton. When the user select of which ontological categories wants to do the comparison, this widget created a 
+  ## option button on the "Graphs" panel for every category selected (input$checkGroup3). After the server calculate the results the user can select from which category want to see
+  ## the basic profiles tables and graphs and the merge table and graphs.
+  output$other1 <- renderUI({{radioButtons("graphs", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}})
   
-  ##Other species other packages
-  output$other1 <- renderUI({
-    {radioButtons("graphs", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}})
-  
-  ##Other species other packages
+  ## From a UIoutput/RenderUI widget, we define a widget type radiobutton. When the user select of which ontological categories wants to do the comparison, this widget created a 
+  ## option button on the "Results" panel for every category selected (input$checkGroup3). After the server calculate the results the user can select from which category want to see
+  ## the Fisher test results.
   output$fishs <- renderUI({{radioButtons("fish", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}})
   
-  #Install new packages
-  observeEvent(input$run, {
-    if(!is.null(input$text2)){(BiocManager::install(input$text2))}})
+  ##  Install other annotation packages:
+  
+  ##  In case the user needed a bioconductor annotation package from a different species out of the four options, the option "others" is a UIoutput/renderUi widget that if selected 
+  ##  will create a textinput so the user can write the name of the anotation package required.
+  output$other <- renderUI({if(input$select22 =="other"){textInput("text2", strong("Other species"), value = "Write the Bioconductor annotation package for the species...")}})
+  
+  ##  The name written is taken as an input. Observe event() allows as to give an order after observing an event. The event is "input$run" which is the acction button that triggers
+  ##  the server to run. When input$run is clicked, if input$text2(The name of the annotation package required), isn't null, exists, download and install the package from bioconductor
+  ##  through BioManager.
+  observeEvent(input$run, {if(!is.null(input$text2)){(BiocManager::install(input$text2))}})
+ 
+  ##  Onces the package is installed, observe "input$run", if input$text2 is not null, exists, define a variable "foo" containing the name of the package and call it from the libary
+  ##  making sure that character.only() is true.
   observeEvent(input$run, {
     if(!is.null(input$text2)){
       foo <- input$text2
       library(foo, character.only = TRUE)
     }})
   
-  ##File uploading
+  
+  ##File uploading:
+  ## 
   datass <- reactive({
     req(input$upload1)
     file_path = input$upload1$datapath
