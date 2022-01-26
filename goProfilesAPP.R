@@ -212,18 +212,28 @@ server <- function(input, output) {
   
   
   ##File uploading:
-  ## 
+  
+  ## Datass is a reactive object
   datass <- reactive({
+    # In order to proceed with this code it is required input$upload1, files uploades to the inteface.
     req(input$upload1)
+    # We define a new variable "file_path" that contains input$upload1$datapath, the datapath of all the files uploades.
     file_path = input$upload1$datapath
+    # We define an empty list called "file_contentsss" and an empty list call "lil". 
     file_contentsss = c()
     lil= c()
+    # We define a variable "l" with value 1.
     l <- 1
+    # for each element through all the elements from the first to the last included in file_path(the files):
     for(i in 1: length(file_path))
     {
+      # The element i of the list "file contentsss" is the element i of file_path, the file readed with read.csv(). input$quote is the option the user can select regarding quoted
+      # data, input$sep is the option selected regarding the separators, and input$header is the option regarding if the list has or not headers.
+      # The name of the element i in file_contentss is the name of the file i.
       file_contentsss[[i]] =  read.csv(file = file_path[[i]], quote = input$quote, header= input$header, sep = input$sep)
       names(file_contentsss)[i] = input$upload1$name[[i]]
     }
+    
     for(j  in seq_along(file_contentsss)){
       lil[[j]] <- as.character(file_contentsss[[j]][[l]])
       names(lil)[j] = names(file_contentsss)[j]
