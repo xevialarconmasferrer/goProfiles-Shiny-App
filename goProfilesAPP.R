@@ -309,9 +309,20 @@ server <- function(input, output) {
   })
   # The object obtained is dt(). A list of lists containing the basic profiles of one list and for each ontological category selected.
   
+  # Tables visualization functional profiles
+output$text <- renderPrint({
+  for( i in 1:length(dt())){
+   local({
+      print(paste0(names(dt())[i],"_",input$graphs))
+      print(dt()[[i]][[input$graphs]])
+    })
+ }
+})
+  
   ## Download basic profiles tables
   
-  # We define that te ouptput of clicking the widget downloadButton named "download3" is a downloadHandler that writes the results from dt() into a .txt file called "Bprofiles.txt".
+  # We define that te ouptput of clicking the widget downloadButton named "download3" is a downloadHandler that applies write.xlsx to the results from dt() and print them into a 
+  # .txt file called "Bprofiles.txt".
   output$download3 <- downloadHandler(
     filename = function() {"Bprofiles.txt"},
     content = function(file) {
@@ -319,37 +330,8 @@ server <- function(input, output) {
       sink(file); print(dt()); sink();
     }
   )
- 
-  
-  ## Calculation of Merged basic profiles:
-  #  
-  m <- reactive({
-    req(input$run)
-    c=0
-    dt2 <- dt()
-    list1 <- list()
-    for( i in 1:(length(dt2)-1)){
-      for(j in (i+1):length(dt2)){
-        c=c+1
-        ii <- i
-        jj <- j
-        list1[[c]] = mergeProfilesLists(dt2[[ii]],dt2[[jj]], profNames = c(names(dt2)[ii],names(dt2)[jj]))
-        names(list1)[c]= paste0(names(dt2)[ii],"_",names(dt2)[jj])
-      }
-    }
-    print(list1)
-    
-  })
-  
-  #Download merges tables
-  output$download4 <- downloadHandler(
-    filename = function() {"merge.txt"},
-    content = function(file) {
-      xlsx::write.xlsx
-      sink(file); print(m()); sink();
-    }
-  )
-  #Graphs visualization functional profiles 
+
+  # Graphs visualization functional profiles 
   output$plots <- renderUI({
     req(input$run)
     out <- list()
@@ -371,6 +353,8 @@ observe({
     }                                  
   })
 
+## Download basic profiles plots
+#
 output$download1 <- downloadHandler(
   filename = "Bprofiles.pdf",
   content = function(file) {
@@ -381,19 +365,54 @@ output$download1 <- downloadHandler(
     dev.off()
   }
 )
-
-## Tables visualization functional profiles
-output$text <- renderPrint({
-  for( i in 1:length(dt())){
-   local({
-      print(paste0(names(dt())[i],"_",input$graphs))
-      print(dt()[[i]][[input$graphs]])
-    })
- }
-})
-
-
-#Creating and visualizing merged
+ 
+  ## Calculation of Merged basic profiles:
+  
+  #  We create a new reactive variable called "m".
+  m <- reactive({
+    # It requires clicking on action button "run" to proceed with this code.
+    req(input$run)
+    # We define a new variable "c" with value 0.
+    c=0
+    # We define dt2 as a variable including the data from dt() in order to null the reactive properties of dt()
+    dt2 <- dt()
+    # A empty list "list1" is definded.
+    list1 <- list()
+    # To calculate the merge of the functional profiles, we use the function mergeProfilesLists witch generates a new profile resulting from the merged of two basic profiles.
+    # In order to do this, we need to apply this funcion to all unic posible combinations of two of the different basic profiles obtained. 
+    # For i iterating through all the elements in dt2 from first to penultimate.
+    for( i in 1:(length(dt2)-1)){
+      # For j iterating from the element in the position i + 1 to last.
+      for(j in (i+1):length(dt2)){
+        # At each iteration c is equal to c+1
+        c=c+1
+        ii <- i
+        jj <- j
+        # The position "c" of the list1, correspond to the result of applying mergedProfiles two the basic profile of the element "i" and the basic profile of the element "j".
+        list1[[c]] = mergeProfilesLists(dt2[[ii]],dt2[[jj]], profNames = c(names(dt2)[ii],names(dt2)[jj]))
+        # We define the names of this list in the list as pasting the name that i has on dt2() and the name thas j has on dt2(). In that manner we know of which combination of lists
+        # is the merged obtained.
+        names(list1)[c]= paste0(names(dt2)[ii],"_",names(dt2)[jj])
+      }
+    }
+    print(list1)
+  })
+  # The object obtained is m(). A list of lists containing the merged profiles of all unic posible combinations of two of the different basic profiles included in dt(), for each 
+  # ontological categorie selected.
+  
+# Download merges tables:
+  # We define that te ouptput of clicking the widget downloadButton named "download4" is a downloadHandler that applies write.xlsx to the results from m() and print them into a 
+  # .txt file called "merged.txt".
+  output$download4 <- downloadHandler(
+    filename = function() {"merge.txt"},
+    content = function(file) {
+      xlsx::write.xlsx
+      sink(file); print(m()); sink();
+    }
+  )
+  
+  
+# Visualizing merged Plots
 output$plots2 <- renderUI({
   out2 <- list()
   c=0
@@ -432,17 +451,6 @@ output$download2 <- downloadHandler(
     dev.off()
   }
 )
-
-## Tables visualization functional profiles
-output$text2 <- renderPrint({
-  for( i in 1:length(m())){
-    local({
-      print(paste0(names(m())[i],"_",input$graphs))
-      print(m()[[i]][[input$graphs]])
-    })
-  }
-})
-
 
 #Euclidean distance test
 
@@ -501,14 +509,10 @@ output$table2 <- renderPrint({
     content = function(file) {
       xlsx::write.xlsx
       sink(file); print(list34); sink();
-    }
-  )
-})
-
-
-
+      }
+    )
+  })
 }
-
 
 # Run the application 
 shinyApp(ui = ui, server = server)
