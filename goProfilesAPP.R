@@ -409,10 +409,16 @@ output$download1 <- downloadHandler(
   # ontological categorie selected.
 
 # Visualization tables merged
+  
+# The output of the input Verbatimtextoutput() "text2" will show the tables of the merged functional profiles  
 output$text2 <- renderPrint({
+  # for i, as a posicion from 1 to the length of m(), from start to end
   for( i in 1:length(m())){
     local({
+       # Print a title for each table as the name of the list i in m() pasted to input$graphs. Input$graphs is a radio$button widget created before containing all the ontological
+       # categories selected so the user can choose of which category see the resulting tables.
       print(paste0(names(m())[i],"_",input$graphs))
+      # Print the the object of m() in the position i of m(), and the object included in the element of name "input$graphs" of i, the ontological category selected.
       print(m()[[i]][[input$graphs]])
     })
   }
