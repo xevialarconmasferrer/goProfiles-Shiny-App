@@ -181,29 +181,29 @@ ui <- fluidPage(theme=("bootstrap.min3.css"),
 # as arguments.
 server <- function(input, output) {
   
-  ## From a UIoutput/RenderUI widget, we define a widget type radiobutton. When the user select of which ontological categories wants to do the comparison, this widget created a 
-  ## option button on the "Graphs" panel for every category selected (input$checkGroup3). After the server calculate the results the user can select from which category want to see
-  ## the basic profiles tables and graphs and the merge table and graphs.
+  # From a UIoutput/RenderUI widget, we define a widget type radiobutton. When the user select of which ontological categories wants to do the comparison, this widget created a 
+  # option button on the "Graphs" panel for every category selected (input$checkGroup3). After the server calculate the results the user can select from which category want to see
+  # the basic profiles tables and graphs and the merge table and graphs.
   output$other1 <- renderUI({{radioButtons("graphs", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}})
   
-  ## From a UIoutput/RenderUI widget, we define a widget type radiobutton. When the user select of which ontological categories wants to do the comparison, this widget created a 
-  ## option button on the "Results" panel for every category selected (input$checkGroup3). After the server calculate the results the user can select from which category want to see
-  ## the Fisher test results.
+  # From a UIoutput/RenderUI widget, we define a widget type radiobutton. When the user select of which ontological categories wants to do the comparison, this widget created a 
+  # option button on the "Results" panel for every category selected (input$checkGroup3). After the server calculate the results the user can select from which category want to see
+  # the Fisher test results.
   output$fishs <- renderUI({{radioButtons("fish", "",choices = c(input$checkGroup3), selected = input$checkGroup3[[1]],inline=T)}})
   
-  ##  Install other annotation packages:
+  #  Install other annotation packages:
   
-  ##  In case the user needed a bioconductor annotation package from a different species out of the four options, the option "others" is a UIoutput/renderUi widget that if selected 
-  ##  will create a textinput so the user can write the name of the anotation package required.
+  #  In case the user needed a bioconductor annotation package from a different species out of the four options, the option "others" is a UIoutput/renderUi widget that if selected 
+  #  will create a textinput so the user can write the name of the anotation package required.
   output$other <- renderUI({if(input$select22 =="other"){textInput("text2", strong("Other species"), value = "Write the Bioconductor annotation package for the species...")}})
   
-  ##  The name written is taken as an input. Observe event() allows as to give an order after observing an event. The event is "input$run" which is the acction button that triggers
-  ##  the server to run. When input$run is clicked, if input$text2(The name of the annotation package required), isn't null, exists, download and install the package from bioconductor
-  ##  through BioManager.
+  #  The name written is taken as an input. Observe event() allows as to give an order after observing an event. The event is "input$run" which is the acction button that triggers
+  #  the server to run. When input$run is clicked, if input$text2(The name of the annotation package required), isn't null, exists, download and install the package from bioconductor
+  #  through BioManager.
   observeEvent(input$run, {if(!is.null(input$text2)){(BiocManager::install(input$text2))}})
  
-  ##  Onces the package is installed, observe "input$run", if input$text2 is not null, exists, define a variable "foo" containing the name of the package and call it from the libary
-  ##  making sure that character.only() is true.
+  #  Onces the package is installed, observe "input$run", if input$text2 is not null, exists, define a variable "foo" containing the name of the package and call it from the libary
+  #  making sure that character.only() is true.
   observeEvent(input$run, {
     if(!is.null(input$text2)){
       foo <- input$text2
@@ -211,9 +211,9 @@ server <- function(input, output) {
     }})
   
   
-  ##  1.- File uploading:
+  #  1.- File uploading:
   
-  ## datass is a reactive object
+  # datass is a reactive object
   datass <- reactive({
     # In order to proceed with this code it is required input$upload1, files uploades to the inteface.
     req(input$upload1)
@@ -247,6 +247,7 @@ server <- function(input, output) {
   
   
   # Descriptive table of the files uploaded:
+  
   # We define the output for the widget tableoutput "head" as a table containing input$ulpload1, a table that contains all the files uploaded, the size and the datapath for each one
   # if is not null, there are files to show.
   output$head <- renderTable({
@@ -284,7 +285,7 @@ server <- function(input, output) {
   })
   
   
-  ## Calcultaion of Basic Profiles:
+  # Calcultaion of Basic Profiles:
   
   # We define a reactive variable dt()
   dt <- reactive({
@@ -310,16 +311,22 @@ server <- function(input, output) {
   # The object obtained is dt(). A list of lists containing the basic profiles of one list and for each ontological category selected.
   
   # Tables visualization functional profiles
-output$text <- renderPrint({
-  for( i in 1:length(dt())){
-   local({
-      print(paste0(names(dt())[i],"_",input$graphs))
-      print(dt()[[i]][[input$graphs]])
-    })
- }
-})
   
-  ## Download basic profiles tables
+  # The output of the input Verbatimtextoutput() "text" will show the tables of functional profiles
+  output$text <- renderPrint({
+    # for i, as a posicion from 1 to the length of dt(), from start to end
+    for( i in 1:length(dt())){
+     local({
+       # Print a title for each table as the name of the list i in dt() pasted to input$graphs. Input$graphs is a radio$button widget created before containing all the ontological
+       # categories selected so the user can choose of which category see the resulting tables.
+        print(paste0(names(dt())[i],"_",input$graphs))
+       # Print the the object of dt() in the position i of dt(), and the object included in the element of name "input$graphs" of i, the ontological category selected.
+        print(dt()[[i]][[input$graphs]])
+        })
+      }
+  })
+  
+  # Download basic profiles tables:
   
   # We define that te ouptput of clicking the widget downloadButton named "download3" is a downloadHandler that applies write.xlsx to the results from dt() and print them into a 
   # .txt file called "Bprofiles.txt".
@@ -331,7 +338,8 @@ output$text <- renderPrint({
     }
   )
 
-  # Graphs visualization functional profiles 
+  # Plot visualization of functional profiles :
+  
   output$plots <- renderUI({
     req(input$run)
     out <- list()
@@ -353,7 +361,7 @@ observe({
     }                                  
   })
 
-## Download basic profiles plots
+# Download basic profiles plots:
 #
 output$download1 <- downloadHandler(
   filename = "Bprofiles.pdf",
@@ -366,7 +374,7 @@ output$download1 <- downloadHandler(
   }
 )
  
-  ## Calculation of Merged basic profiles:
+  # Calculation of Merged basic profiles:
   
   #  We create a new reactive variable called "m".
   m <- reactive({
@@ -399,8 +407,19 @@ output$download1 <- downloadHandler(
   })
   # The object obtained is m(). A list of lists containing the merged profiles of all unic posible combinations of two of the different basic profiles included in dt(), for each 
   # ontological categorie selected.
+
+# Visualization tables merged
+output$text2 <- renderPrint({
+  for( i in 1:length(m())){
+    local({
+      print(paste0(names(m())[i],"_",input$graphs))
+      print(m()[[i]][[input$graphs]])
+    })
+  }
+})
   
-# Download merges tables:
+# Download merged tables:
+  
   # We define that te ouptput of clicking the widget downloadButton named "download4" is a downloadHandler that applies write.xlsx to the results from m() and print them into a 
   # .txt file called "merged.txt".
   output$download4 <- downloadHandler(
@@ -410,7 +429,6 @@ output$download1 <- downloadHandler(
       sink(file); print(m()); sink();
     }
   )
-  
   
 # Visualizing merged Plots
 output$plots2 <- renderUI({
